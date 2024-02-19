@@ -1,0 +1,7 @@
+.character-list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Создание колонок с минимальной шириной 200px и заполнением доступного пространства */
+    gap: 20px; /* Расстояние между элементами сетки */
+    padding: 20px; /* Отступ внутри контейнера */
+  }
+  
