@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Сервис доставки цветов</title>
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        img {
+            width: 50px;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script>
+        const React = window.React;
+        const ReactDOM = window.ReactDOM;
+
+        const TableComponent = (props) => {
+            const { organization, items } = props;
+
+            const header = React.createElement('tr', {},
+                React.createElement('th', {}, 'Название'),
+                React.createElement('th', {}, 'Описание'),
+                React.createElement('th', {}, 'Цена'),
+                React.createElement('th', {}, 'Фото')
+            );
+
+            const rows = items.map((item) =>
+                React.createElement('tr', { key: item.id },
+                    React.createElement('td', {}, item.name),
+                    React.createElement('td', {}, item.description),
+                    React.createElement('td', {}, item.price),
+                    React.createElement('td', {},
+                        React.createElement('img', { src: item.url, alt: item.name, style: { width: '50px', height: '50px' } })
+                    )
+                )
+            );
+
+            const table = React.createElement('table', {},
+                React.createElement('thead', {}, header),
+                React.createElement('tbody', {}, rows)
+            );
+
+            return React.createElement('div', {},
+                React.createElement('h2', {}, `Товары и услуги организации: ${organization}`),
+                table
+            );
+        };
+
+        const items = [
+            { id: 1, name: 'Роза', description: 'Красная роза, длина стебля 50 см', price: '100 руб.', url: 'https://i.pinimg.com/564x/f6/e4/dd/f6e4dda1512fb30f6d90c8032e358528.jpg' },
+            { id: 2, name: 'Тюльпан', description: 'Желтый тюльпан, длина стебля 30 см', price: '80 руб.', url: 'https://i.pinimg.com/564x/ff/7e/ef/ff7eef3586027b53d53e7a4074ebc1bd.jpg' },
+        ];
+
+        ReactDOM.render(
+            React.createElement(TableComponent, { organization: 'Цветочная мастерская "Букет"', items: items }, null),
+            document.getElementById('root')
+        );
+    </script>
+</body>
+
+</html>
