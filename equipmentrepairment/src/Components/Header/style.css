@@ -1,0 +1,104 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #fff; /* Adjust the color to fit your design */
+  }
+  
+  .logo {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .content {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    
+  }
+
+  .content li:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+  }
+  
+  .content li {
+    transition: transform 0.2s ease-in-out;
+    padding: 0 1rem;
+  }
+  
+  .content li a {
+    text-decoration: none;
+    color: #333; /* Adjust the color to fit your design */
+  }
+
+  .content li a:hover {
+    text-decoration: none;
+    color: rgb(66, 167, 198); /* Adjust the color to fit your design */
+  }
+
+  .hamburger {
+    display: none; /* Hide hamburger button by default */
+    font-size: 2rem; /* Size of the hamburger icon */
+    background: none;
+    border: none; 
+  }
+  
+  /* Show the hamburger button on smaller screens */
+  @media (max-width: 768px) {
+    .hamburger {
+      display: flex;
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+    }
+    
+    .content {
+      display: none; /* Hide the content by default on small screens */
+      flex-direction: column;
+      position: fixed; /* Position fixed to stay in view on scroll */
+      top: 0; /* Position from the top */
+      right: 0; /* Position from the right */
+      width: 250px; /* Width of the sidebar */
+      height: 100%; /* Full height */
+      background-color: #fff; /* Set the background color to match the header */
+      transform: translateX(100%); /* Start off-screen to the right */
+      transition: transform 0.3s ease-in-out; /* Animated transition for opening/closing */
+      z-index: 1000; /* Ensure the menu is above other content */
+    }
+  
+    .content.active {
+      display: flex; /* Display the content when active */
+      transform: translateX(0); /* Move into view */
+    }
+    
+    .content li {
+      padding: 1rem; /* Larger tap targets for navigation */
+    }
+  
+    .header {
+      flex-direction:   row;
+      align-items: flex-start;
+      position: relative; /* Needed to position the hamburger menu */
+      z-index: 1001; /* Ensure the header is above the sidebar */
+    }
+    
+    /* Ensure logo and hamburger stack correctly on smaller screens */
+    .logo, .hamburger {
+      width: 100%;
+      text-align: left;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header {
+      padding: 0.5rem;
+    }
+  
+    .logo li {
+      font-size: 1.2rem; /* Adjust the font size to fit your design */
+    }
+  }   
