@@ -1,0 +1,19 @@
+.button-remove {
+    background-color: #df7373; /* White background for a clean look */
+    color: #333; /* Dark gray text for contrast */
+    border: 1px solid #ddd; /* Light gray border */
+    padding: 10px 20px; /* Spacing inside the button */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* No underline on text */
+    display: inline-block; /* Allows setting width and height */
+    font-size: 16px; /* Default font size */
+    margin: 4px 2px; /* Spacing around the button */
+    cursor: pointer; /* Mouse cursor becomes a pointer when hovering over the button */
+    border-radius: 4px; /* Slightly rounded corners for a modern look */
+    font-family: Arial, sans-serif; /* Sans-serif font for a modern feel */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effects */
+  } 
+  .button-remove:hover {
+    background-color: #e62929; /* Slightly darker background on hover */
+    color: #555; /* Slightly darker text on hover */
+  } 
