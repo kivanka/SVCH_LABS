@@ -39,8 +39,8 @@ export const createMachineValidation = [
     body('name', 'Product name is required').notEmpty(),
     body('condition', 'Condition is required and must be a string').notEmpty(),
     body('serviceDates', 'Service dates must be an array of dates').optional().isArray(),
-    body('serviceDates.*', 'Each service date must be a valid date').optional().isISO8601(),
-    body('imageUrl', 'Invalid URL format for image').optional().isURL(),
+    body('serviceDates.*', 'Each service date must be a valid date').optional(),
+    body('imageUrl', 'Invalid URL format for image').optional(),
 ];
 
 // Machine update validation
@@ -48,13 +48,12 @@ export const updateMachineValidation = [
     body('name', 'Product name must be a non-empty string').optional().notEmpty(),
     body('condition', 'Condition must be a string').optional().notEmpty(),
     body('serviceDates', 'Service dates must be an array of dates').optional().isArray(),
-    body('serviceDates.*', 'Each service date must be a valid date').optional().isISO8601(),
-    body('imageUrl', 'Invalid URL format for image').optional().isURL(),
+    body('serviceDates.*', 'Each service date must be a valid date').optional(),
+    body('imageUrl', 'Invalid URL format for image').optional(),
 ];
 
 // Order creation validation
 export const createOrderValidation = [
-    body('user', 'User ID is required and must be a valid ObjectId').notEmpty().isMongoId(),
     body('description', 'Description is required').notEmpty(),
     body('status', 'Invalid status').isIn(['pending', 'inProgress', 'completed', 'declined']),
     body('product', 'Product ID is required and must be a valid ObjectId').notEmpty().isMongoId(),
@@ -62,7 +61,6 @@ export const createOrderValidation = [
 
 // Order update validation
 export const updateOrderValidation = [
-    body('user', 'User ID must be a valid ObjectId').optional().isMongoId(),
     body('description', 'Description is required').optional().notEmpty(),
     body('status', 'Invalid status').optional().isIn(['pending', 'inProgress', 'completed', 'declined']),
     body('product', 'Product ID must be a valid ObjectId').optional().isMongoId(),
