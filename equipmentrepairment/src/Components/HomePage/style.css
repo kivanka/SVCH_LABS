@@ -1,0 +1,41 @@
+.home-page {
+    background-color: #fff; /* Adjust the color to fit your design */
+    color: #333; /* Adjust the text color to fit your design */
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .home-page h1 {
+    color: #0044cc; /* Adjust the heading color to fit your design */
+    margin-bottom: 1rem;
+  }
+  
+  .home-page p {
+    font-size: 1rem; /* Adjust the font size to fit your design */
+    margin-bottom: 1rem;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .home-page {
+      padding: 1.5rem;
+    }
+  
+    .home-page h1 {
+      font-size: 1.5rem; /* Adjust the heading font size for smaller screens */
+    }
+  
+    .home-page p {
+      font-size: 0.9rem; /* Adjust the paragraph font size for smaller screens */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .home-page h1 {
+      font-size: 1.2rem; /* Adjust the heading font size for very small screens */
+    }
+  
+    .home-page p {
+      font-size: 0.8rem; /* Adjust the paragraph font size for very small screens */
+    }
+  }   

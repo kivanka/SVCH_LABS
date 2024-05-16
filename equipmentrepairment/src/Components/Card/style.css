@@ -1,0 +1,87 @@
+.service-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  margin: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #fff;
+  display: flex;
+  flex-direction: column; /* Keep the direction to column */
+  /* Removed the width property to allow grid to control the width */
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* This adds a slight shadow effect on hover */
+}
+
+/* Keep the image height consistent */
+.service-image {
+  width: 100%;
+  height: 200px; /* Set a fixed height */
+  object-fit: cover; /* Cover the area without stretching */
+  border-bottom: 1px solid #ddd;
+}
+
+/* Set a minimum height for the title and description to align text */
+.service-title,
+.service-description {
+  min-height: 3em; /* Adjust as needed */
+}
+
+/* Добавьте этот стиль в ваш файл style.css */
+
+.service-card.selected {
+  background-color: #e3f2fd; /* Светло-голубой фон для выбранных карточек */
+  border: 1px solid #2196f3; /* Синяя рамка для выделения */
+}
+
+
+/* Adjustments for very small screens */
+@media (max-width: 480px) {
+  .service-card {
+    /* Set to full width minus margins for smaller screens */
+    width: calc(100% - 2rem); 
+    /* Removed the max-height to allow image to scale with width */
+  }
+
+  .service-image {
+    width: 100%;
+    height: 40%; /* Set a fixed height */
+    object-fit: cover; /* Cover the area without stretching */
+    border-bottom: 1px solid #ddd;
+  }
+
+  .service-image {
+    height: auto; /* Adjust height to be auto for small screens */
+  }
+}
+
+/* Adjust the grid layout for larger screens to make cards wider */
+@media (min-width: 768px) {
+  .services-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust min width for wider cards */
+    grid-gap: 1rem;
+  }
+
+  .service-card {
+    /* Adjustments to max-width can be made here if needed */
+  }
+}
+
+/* For medium-sized screens where you want two cards per row */
+@media (min-width: 992px) {
+  .services-container {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Increase min width for even wider cards */
+  }
+}
+
+/* For large-sized screens where you want three cards per row */
+@media (min-width: 1200px) {
+  .services-container {
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); /* Further increase for larger screens */
+  }
+} 
