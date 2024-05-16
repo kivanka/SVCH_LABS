@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typography Service</title>
+</head>
+
+<body>
+    <h1>Typography Service</h1>
+    <div id="data"></div>
+    <button id="fetchData">Fetch Data</button>
+    <button id="downloadJSON">Download JSON</button>
+    <button id="downloadXML">Download XML</button>
+    <button id="downloadHTML">Download HTML</button>
+
+    <script>
+        document.getElementById('fetchData').addEventListener('click', () => {
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('data').innerHTML = JSON.stringify(data, null, 2);
+                });
+        });
+
+        document.getElementById('downloadJSON').addEventListener('click', () => {
+            fetch('/api/data', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.json';
+                    a.click();
+                });
+        });
+
+        document.getElementById('downloadXML').addEventListener('click', () => {
+            fetch('/api/data/format', {
+                headers: {
+                    'Accept': 'application/xml'
+                }
+            })
+                .then(response => response.text())
+                .then(data => {
+                    const blob = new Blob([data], { type: 'application/xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.xml';
+                    a.click();
+                });
+        });
+
+        document.getElementById('downloadHTML').addEventListener('click', () => {
+            fetch('/api/data/format', {
+                headers: {
+                    'Accept': 'text/html'
+                }
+            })
+                .then(response => response.text())
+                .then(data => {
+                    const blob = new Blob([data], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.html';
+                    a.click();
+                });
+        });
+    </script>
+</body>
+
+</html>
