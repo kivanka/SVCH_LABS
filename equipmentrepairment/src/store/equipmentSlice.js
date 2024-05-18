@@ -1,4 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+// Async thunk to fetch equipment data
+export const fetchEquipment = createAsyncThunk('equipment/fetchEquipment', async () => {
+    const response = await fetch('/data/equipment.json');
+    const data = await response.json();
+    return data;
+});
 
 const initialState = {
     equipments: [],
@@ -13,9 +20,6 @@ const equipmentSlice = createSlice({
     name: 'equipment',
     initialState,
     reducers: {
-        setEquipment(state, action) {
-            state.equipments = action.payload;
-        },
         toggleSelect(state, action) {
             if (state.selectedIds.has(action.payload)) {
                 state.selectedIds.delete(action.payload);
@@ -54,10 +58,14 @@ const equipmentSlice = createSlice({
             state.selectedIds = new Set();
         },
     },
+    extraReducers: (builder) => {
+        builder.addCase(fetchEquipment.fulfilled, (state, action) => {
+            state.equipments = action.payload;
+        });
+    },
 });
 
 export const {
-    setEquipment,
     toggleSelect,
     setSearchTerm,
     setFilterStatus,

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-    setEquipment,
+    fetchEquipment,
     toggleSelect,
     setSearchTerm,
     setFilterStatus,
@@ -29,10 +29,7 @@ function EquipmentPage() {
     } = useSelector(state => state.equipment);
 
     useEffect(() => {
-        fetch('/data/equipment.json')
-            .then(response => response.json())
-            .then(data => dispatch(setEquipment(data)))
-            .catch(error => console.error("Ошибка при загрузке оборудования:", error));
+        dispatch(fetchEquipment());
     }, [dispatch]);
 
     const handleAddClick = () => {
