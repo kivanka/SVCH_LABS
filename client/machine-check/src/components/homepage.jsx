@@ -22,7 +22,7 @@ const HomePage = () => {
                     <Card>
                         <CardMedia
                             component="img"
-                            height="540"
+                            height="200"
                             image={employee.imageUrl || 'default_employee_image.jpg'}
                             alt={employee.name}
                         />
@@ -37,21 +37,21 @@ const HomePage = () => {
         </Grid>
     );
 
-    const rendermachines = () => (
+    const renderMachines = () => (
         <Grid container spacing={2}>
-            {machines.map(part => (
-                <Grid item key={part._id} xs={12} sm={6} md={4}>
+            {machines.map(machine => (
+                <Grid item key={machine._id} xs={12} sm={6} md={4}>
                     <Card>
                         <CardMedia
                             component="img"
-                            height="540"
-                            image={part.imageUrl || 'default_part_image.jpg'}
-                            alt={part.name}
+                            height="200"
+                            image={machine.imageUrl || 'default_machine_image.jpg'}
+                            alt={machine.name}
                         />
                         <CardContent>
-                            <Typography variant="h5">{part.name}</Typography>
-                            <Typography variant="body2">{part.model}</Typography>
-                            <Typography variant="body2">{part.condition ? 'Available' : 'Not Available'}</Typography>
+                            <Typography variant="h5">{machine.name}</Typography>
+                            <Typography variant="body2">Model: {machine.model}</Typography>
+                            <Typography variant="body2">Status: {machine.condition ? 'Operational' : 'Under Maintenance'}</Typography>
                         </CardContent>
                     </Card>
                 </Grid>
@@ -62,29 +62,29 @@ const HomePage = () => {
     return (
         <div>
             <Typography variant="h4" gutterBottom>
-                Добро пожаловать в нашу прачечную!!!
+                Welcome to Our Machine Control Service!
             </Typography>
             <Typography variant="body1" style={{ marginBottom: '2rem' }}>
-                СТИРАЕМ БУДЬ ЗДОРОВ!
+                Ensuring Efficiency and Reliability in Your Production Line
             </Typography>
 
             <Typography variant="h4" gutterBottom style={{ marginTop: '2rem' }}>
-                У НАС ЛУЧШИЕ СТИРАЛКИ!!!! В МИРЕ!!!!
+                Our Top Machines
             </Typography>
-            {rendermachines()}
+            {renderMachines()}
             <Typography>
                 <Link to='/machines'>
-                    подробнее
+                    View More
                 </Link>
             </Typography>
 
             <Typography variant="h4" gutterBottom style={{ marginTop: '2rem' }}>
-                Наши РАБОТНИКИ ГОДА МАКСИМ МАКСАКОВ!!!!
+                Meet Our Expert Technicians
             </Typography>
             {renderEmployees()}
             <Typography>
                 <Link to='/employees'>
-                    подробнее
+                    View More
                 </Link>
             </Typography>
         </div>

@@ -28,7 +28,7 @@ import {
 } from './utils/index.js';
 
 mongoose
-    .connect('mongodb+srv://admin:Hesus2016@cluster0.vgtv5yo.mongodb.net/MachineCheck')
+    .connect('mongodb+srv://admin:He12345678@cluster0.k6wg7rw.mongodb.net/Machine?retryWrites=true&w=majority')
     .then(() => console.log('DB OK'))
     .catch((err) => console.log('DB ERROR', err));
 
