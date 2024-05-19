@@ -1,0 +1,14 @@
+{
+    "equipment": [
+        {
+            "id": 1,
+            "name": "Pump",
+            "status": "Operational"
+        },
+        {
+            "id": 2,
+            "name": "Conveyor",
+            "status": "Under Maintenance"
+        }
+    ]
+}

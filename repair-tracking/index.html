@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repair Tracking</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('equipment-list');
+                    data.equipment.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${item.name}: ${item.status}`;
+                        list.appendChild(listItem);
+                    });
+                });
+
+            document.getElementById('update-button').addEventListener('click', () => {
+                fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'update' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    // Обновление данных на странице при необходимости
+                });
+            });
+
+            document.getElementById('download-json').addEventListener('click', () => {
+                fetch('/api/data')
+                    .then(response => response.json())
+                    .then(data => {
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'data.json';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    });
+            });
+
+            document.getElementById('download-xml').addEventListener('click', () => {
+                fetch('/api/format', {
+                    headers: {
+                        'Accept': 'application/xml'
+                    }
+                })
+                .then(response => response.text())
+                .then(data => {
+                    const blob = new Blob([data], { type: 'application/xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.xml';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+            });
+
+            document.getElementById('download-html').addEventListener('click', () => {
+                fetch('/api/format', {
+                    headers: {
+                        'Accept': 'text/html'
+                    }
+                })
+                .then(response => response.text())
+                .then(data => {
+                    const blob = new Blob([data], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.html';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Equipment Repair Tracking</h1>
+    <ul id="equipment-list"></ul>
+    <button id="update-button">Update Data</button>
+    <button id="download-json">Download JSON</button>
+    <button id="download-xml">Download XML</button>
+    <button id="download-html">Download HTML</button>
+</body>
+</html>
