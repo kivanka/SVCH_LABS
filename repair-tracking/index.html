@@ -1,21 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Repair Tracking</title>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('/api/data')
-                .then(response => response.json())
-                .then(data => {
-                    const list = document.getElementById('equipment-list');
-                    data.equipment.forEach(item => {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = `${item.name}: ${item.status}`;
-                        list.appendChild(listItem);
+            const fetchAndDisplayData = () => {
+                fetch('/api/data')
+                    .then(response => response.json())
+                    .then(data => {
+                        const list = document.getElementById('equipment-list');
+                        list.innerHTML = '';
+                        data.equipment.forEach(item => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `ID ${item.id} | ${item.name}: ${item.status}`;
+                            list.appendChild(listItem);
+                        });
                     });
-                });
+            };
+
+            fetchAndDisplayData();
+
+            document.getElementById('add-equipment').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('new-equipment-name').value;
+                const status = document.getElementById('new-equipment-status').value;
+                fetch('/api/equipment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, status })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        fetchAndDisplayData();
+                    });
+            });
+
+            document.getElementById('update-equipment').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('update-equipment-id').value;
+                const name = document.getElementById('update-equipment-name').value;
+                const status = document.getElementById('update-equipment-status').value;
+                fetch(`/api/equipment/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, status })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        fetchAndDisplayData();
+                    });
+            });
+
+            document.getElementById('delete-equipment').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('delete-equipment-id').value;
+                fetch(`/api/equipment/${id}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        fetchAndDisplayData();
+                    });
+            });
 
             document.getElementById('update-button').addEventListener('click', () => {
                 fetch('/api/submit', {
@@ -25,11 +81,11 @@
                     },
                     body: JSON.stringify({ action: 'update' })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    // Обновление данных на странице при необходимости
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        fetchAndDisplayData();
+                    });
             });
 
             document.getElementById('download-json').addEventListener('click', () => {
@@ -53,17 +109,17 @@
                         'Accept': 'application/xml'
                     }
                 })
-                .then(response => response.text())
-                .then(data => {
-                    const blob = new Blob([data], { type: 'application/xml' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'data.xml';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                });
+                    .then(response => response.text())
+                    .then(data => {
+                        const blob = new Blob([data], { type: 'application/xml' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'data.xml';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    });
             });
 
             document.getElementById('download-html').addEventListener('click', () => {
@@ -72,27 +128,52 @@
                         'Accept': 'text/html'
                     }
                 })
-                .then(response => response.text())
-                .then(data => {
-                    const blob = new Blob([data], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'data.html';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                });
+                    .then(response => response.text())
+                    .then(data => {
+                        const blob = new Blob([data], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'data.html';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    });
             });
         });
     </script>
 </head>
+
 <body>
     <h1>Equipment Repair Tracking</h1>
     <ul id="equipment-list"></ul>
-    <button id="update-button">Update Data</button>
+    <form id="add-equipment">
+        <h2>Add Equipment</h2>
+        <label for="new-equipment-name">Name:</label>
+        <input type="text" id="new-equipment-name" required>
+        <label for="new-equipment-status">Status:</label>
+        <input type="text" id="new-equipment-status" required>
+        <button type="submit">Add</button>
+    </form>
+    <form id="update-equipment">
+        <h2>Update Equipment</h2>
+        <label for="update-equipment-id">ID:</label>
+        <input type="number" id="update-equipment-id" required>
+        <label for="update-equipment-name">Name:</label>
+        <input type="text" id="update-equipment-name">
+        <label for="update-equipment-status">Status:</label>
+        <input type="text" id="update-equipment-status">
+        <button type="submit">Update</button>
+    </form>
+    <form id="delete-equipment">
+        <h2>Delete Equipment</h2>
+        <label for="delete-equipment-id">ID:</label>
+        <input type="number" id="delete-equipment-id" required>
+        <button type="submit">Delete</button>
+    </form>
     <button id="download-json">Download JSON</button>
     <button id="download-xml">Download XML</button>
     <button id="download-html">Download HTML</button>
 </body>
+
 </html>
