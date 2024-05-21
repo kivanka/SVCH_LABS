@@ -1,30 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMachines, createMachine, deleteMachine, updateMachine } from '../redux/slices/machines';
-import { Grid, Card, CardContent, Typography, CardMedia, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Select, MenuItem } from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
+import { fetchEmployees, createEmployee, deleteEmployee, updateEmployee } from '../redux/slices/employees';
+import { Grid, Card, CardContent, Typography, CardMedia, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import axios from '../redux/axios';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const AdminMachinePage = () => {
+const EmployeesAdminPage = () => {
     const dispatch = useDispatch();
-    const machines = useSelector(state => state.machines.machines);
+    const employees = useSelector(state => state.employees.employees);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
-    const [currentMachine, setCurrentMachine] = useState(null);
-    const [newMachine, setNewMachine] = useState({ name: '', imageUrl: '', condition: '', serviceDates: [] });
+    const [currentEmployee, setCurrentEmployee] = useState(null);
     const [imageFile, setImageFile] = useState(null);
 
+    const { control, handleSubmit, reset } = useForm();
+
     useEffect(() => {
-        dispatch(fetchMachines());
+        dispatch(fetchEmployees());
     }, [dispatch]);
 
-    const handleOpenEditDialog = (machine) => {
-        setCurrentMachine(machine);
+    const handleOpenEditDialog = (employee) => {
+        setCurrentEmployee(employee);
         setOpenEditDialog(true);
+        reset(employee);
+    };
+
+    const handleDelete = (id) => {
+        dispatch(deleteEmployee(id));
+        toast.success('Employee deleted successfully!');
     };
 
     const handleCloseEditDialog = () => {
         setOpenEditDialog(false);
-        setCurrentMachine(null);
+        setCurrentEmployee(null);
     };
 
     const handleOpenCreateDialog = () => {
@@ -33,35 +46,7 @@ const AdminMachinePage = () => {
 
     const handleCloseCreateDialog = () => {
         setOpenCreateDialog(false);
-        setNewMachine({ name: '', imageUrl: '', condition: '', serviceDates: [] });
-    };
-
-    const handleChange = (e, type) => {
-        const { name, value } = e.target;
-        if (type === 'new') {
-            setNewMachine({ ...newMachine, [name]: value });
-        } else {
-            setCurrentMachine({ ...currentMachine, [name]: value });
-        }
-    };
-
-    const handleServiceDateChange = (e, index, type) => {
-        const { value } = e.target;
-        let dates = type === 'new' ? [...newMachine.serviceDates] : [...currentMachine.serviceDates];
-        dates[index] = value;
-        if (type === 'new') {
-            setNewMachine({ ...newMachine, serviceDates: dates });
-        } else {
-            setCurrentMachine({ ...currentMachine, serviceDates: dates });
-        }
-    };
-
-    const addServiceDate = (type) => {
-        if (type === 'new') {
-            setNewMachine({ ...newMachine, serviceDates: [...newMachine.serviceDates, ''] });
-        } else {
-            setCurrentMachine({ ...currentMachine, serviceDates: [...currentMachine.serviceDates, ''] });
-        }
+        reset();
     };
 
     const handleFileChange = (event) => {
@@ -82,176 +67,159 @@ const AdminMachinePage = () => {
         }
     };
 
-    const handleCreateOrUpdateMachine = async (isCreate) => {
-        let machineData = isCreate ? newMachine : currentMachine;
+    const handleCreateOrUpdateEmployee = async (data, isCreate) => {
+        let employeeData = isCreate ? data : { ...currentEmployee, ...data };
 
         if (imageFile) {
             const formData = new FormData();
             formData.append('image', imageFile);
             const uploadedImageData = await uploadImage(formData);
             if (uploadedImageData && uploadedImageData.url) {
-                machineData = { ...machineData, imageUrl: `${window.location.protocol}//localhost:4444${uploadedImageData.url}` };
+                employeeData = { ...employeeData, imageUrl: `${window.location.protocol}//localhost:4444${uploadedImageData.url}` };
             }
         }
 
         if (isCreate) {
-            dispatch(createMachine(machineData));
+            dispatch(createEmployee(employeeData));
             handleCloseCreateDialog();
+            toast.success('Employee created successfully!');
         } else {
-            dispatch(updateMachine({ id: currentMachine._id, updatedData: machineData }));
+            dispatch(updateEmployee({ id: currentEmployee._id, updatedData: employeeData }));
             handleCloseEditDialog();
+            toast.success('Employee updated successfully!');
         }
+        setImageFile(null); // Reset the image file after handling
+    };
+
+    const generatePDFReport = () => {
+        const doc = new jsPDF();
+        doc.text('Employee Report', 20, 10);
+        const tableColumn = ['Name', 'Position', 'Specialization'];
+        const tableRows = [];
+
+        employees.forEach(employee => {
+            const employeeData = [
+                employee.name,
+                employee.position,
+                employee.specialization,
+            ];
+            tableRows.push(employeeData);
+        });
+
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 20,
+        });
+        doc.save('employee_report.pdf');
+    };
+
+    const generateExcelReport = () => {
+        const worksheet = XLSX.utils.json_to_sheet(employees.map(employee => ({
+            Name: employee.name,
+            Position: employee.position,
+            Specialization: employee.specialization,
+        })));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+        XLSX.writeFile(workbook, 'employee_report.xlsx');
     };
 
     return (
         <div>
-            <Typography variant="h4" gutterBottom>Управление Оборудованием</Typography>
-            <Button color="primary" onClick={handleOpenCreateDialog}>Добавить Оборудование</Button>
+            <Typography variant="h4" gutterBottom>Управление сотрудниками</Typography>
+            <Button color="primary" onClick={handleOpenCreateDialog}>Добавить сотрудника</Button>
+            <Button color="primary" onClick={generatePDFReport}>Generate PDF Report</Button>
+            <Button color="primary" onClick={generateExcelReport}>Generate Excel Report</Button>
             <Grid container spacing={3}>
-                {machines.map(machine => (
-                    <Grid item key={machine._id} xs={12} sm={6} md={4}>
+                {employees.map(employee => (
+                    <Grid item key={employee._id} xs={12} sm={6} md={4}>
                         <Card>
                             <CardMedia
                                 component="img"
                                 height="240"
-                                image={machine.imageUrl || 'default_machine_image.jpg'}
-                                alt={machine.name}
+                                image={employee.imageUrl || 'default_employee_image.jpg'}
+                                alt={employee.name}
                             />
                             <CardContent>
-                                <Typography variant="h5">{machine.name}</Typography>
-                                <Typography variant="body2">{`Состояние: ${machine.condition}`}</Typography>
-                                <Button color="primary" onClick={() => handleOpenEditDialog(machine)}>Изменить</Button>
-                                <Button color="secondary" onClick={() => dispatch(deleteMachine(machine._id))}>Удалить</Button>
+                                <Typography variant="h5">{employee.name}</Typography>
+                                <Typography variant="body1">{employee.position}</Typography>
+                                <Typography variant="body2">{employee.specialization}</Typography>
+                                <Button color="primary" onClick={() => handleOpenEditDialog(employee)}>Изменить</Button>
+                                <Button color="secondary" onClick={() => handleDelete(employee._id)}>Удалить</Button>
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
 
-            {/* Dialog for Creating a New Machine */}
+            {/* Dialog for Creating a New Employee */}
             <Dialog open={openCreateDialog} onClose={handleCloseCreateDialog}>
-                <DialogTitle>Добавить Оборудование</DialogTitle>
+                <DialogTitle>Добавить нового сотрудника</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        name="name"
-                        label="Название"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        value={newMachine.name}
-                        onChange={(e) => handleChange(e, 'new')}
-                    />
-                    {/* Select for condition */}
-                    <Select
-                        label="Состояние"
-                        name="condition"
-                        value={newMachine.condition}
-                        onChange={(e) => handleChange(e, 'new')}
-                        fullWidth
-                        displayEmpty
-                        variant="standard"
-                        inputProps={{ 'aria-label': 'Without label' }}
-                    >
-                        <MenuItem value="">
-                            <em>Не определено</em>
-                        </MenuItem>
-                        <MenuItem value="в эксплуатации">В эксплуатации</MenuItem>
-                        <MenuItem value="требует тех обслуживания">Требует тех обслуживания</MenuItem>
-                        <MenuItem value="в ремонте">В ремонте</MenuItem>
-                    </Select>
-                    {/* Input for service dates */}
-                    {newMachine.serviceDates.map((date, index) => (
-                        <TextField
-                            key={index}
-                            margin="dense"
-                            name="serviceDate"
-                            label={`Дата обслуживания ${index + 1}`}
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                            value={date}
-                            onChange={(e) => handleServiceDateChange(e, index, 'new')}
+                    <form onSubmit={handleSubmit((data) => handleCreateOrUpdateEmployee(data, true))}>
+                        <Controller
+                            name="name"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => <TextField {...field} autoFocus margin="dense" label="Имя" type="text" fullWidth variant="standard" />}
                         />
-                    ))}
-                    <Button onClick={() => addServiceDate('new')}>Добавить дату обслуживания</Button>
-                    <TextField
-                        type="file"
-                        margin="dense"
-                        fullWidth
-                        variant="standard"
-                        onChange={handleFileChange}
-                    />
+                        <Controller
+                            name="position"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => <TextField {...field} margin="dense" label="Должность" type="text" fullWidth variant="standard" />}
+                        />
+                        <Controller
+                            name="specialization"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => <TextField {...field} margin="dense" label="Специализация" type="text" fullWidth variant="standard" />}
+                        />
+                        <TextField type="file" margin="dense" fullWidth variant="standard" onChange={handleFileChange} />
+                        <DialogActions>
+                            <Button onClick={handleCloseCreateDialog}>Отмена</Button>
+                            <Button type="submit">Создать</Button>
+                        </DialogActions>
+                    </form>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseCreateDialog}>Cancel</Button>
-                    <Button onClick={() => handleCreateOrUpdateMachine(true)}>Create</Button>
-                </DialogActions>
             </Dialog>
-            {/* Dialog for Editing a Machine */}
+
+            {/* Dialog for Editing an Employee */}
             <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
-                <DialogTitle>Изменить Оборудование</DialogTitle>
+                <DialogTitle>Изменить сотрудника</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        name="name"
-                        label="Название"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        value={currentMachine?.name}
-                        onChange={(e) => handleChange(e, 'edit')}
-                    />
-                    {/* Select for condition */}
-                    <Select
-                        label="Состояние"
-                        name="condition"
-                        value={currentMachine?.condition}
-                        onChange={(e) => handleChange(e, 'edit')}
-                        fullWidth
-                        displayEmpty
-                        variant="standard"
-                        inputProps={{ 'aria-label': 'Without label' }}
-                    >
-                        <MenuItem value="">
-                            <em>None</em>
-                        </MenuItem>
-                        <MenuItem value="в эксплуатации">В эксплуатации</MenuItem>
-                        <MenuItem value="требует тех обслуживания">Требует тех обслуживания</MenuItem>
-                        <MenuItem value="в ремонте">В ремонте</MenuItem>
-                    </Select>
-                    {/* Input for service dates */}
-                    {currentMachine?.serviceDates.map((date, index) => (
-                        <TextField
-                            key={index}
-                            margin="dense"
-                            name="serviceDate"
-                            label={`Дата обслуживания ${index + 1}`}
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                            value={date}
-                            onChange={(e) => handleServiceDateChange(e, index, 'edit')}
+                    <form onSubmit={handleSubmit((data) => handleCreateOrUpdateEmployee(data, false))}>
+                        <Controller
+                            name="name"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => <TextField {...field} autoFocus margin="dense" label="Имя" type="text" fullWidth variant="standard" />}
                         />
-                    ))}
-                    <Button onClick={() => addServiceDate('edit')}>Добавить дату обслуживания</Button>
-                    <TextField
-                        type="file"
-                        margin="dense"
-                        fullWidth
-                        variant="standard"
-                        onChange={handleFileChange}
-                    />
+                        <Controller
+                            name="position"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => <TextField {...field} margin="dense" label="Должность" type="text" fullWidth variant="standard" />}
+                        />
+                        <Controller
+                            name="specialization"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => <TextField {...field} margin="dense" label="Специализация" type="text" fullWidth variant="standard" />}
+                        />
+                        <TextField type="file" margin="dense" fullWidth variant="standard" onChange={handleFileChange} />
+                        <DialogActions>
+                            <Button onClick={handleCloseEditDialog}>Отмена</Button>
+                            <Button type="submit">Сохранить</Button>
+                        </DialogActions>
+                    </form>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseEditDialog}>Cancel</Button>
-                    <Button onClick={() => handleCreateOrUpdateMachine(false)}>Save</Button>
-                </DialogActions>
             </Dialog>
+
+            <ToastContainer />
         </div>
     );
 };
 
-export default AdminMachinePage;
+export default EmployeesAdminPage;
